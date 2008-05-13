@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="9.00"
 	Name="Droute"
 	ProjectGUID="{6E65E102-93A8-435E-B05E-22D5531D04F1}"
 	RootNamespace="Droute"
 	Keyword="Win32Proj"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -40,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="C:\Libraries\Network\Winpcap\4.0\WpdPack\Include"
+				AdditionalIncludeDirectories="D:\Tools\Libraries\Network\Winpcap\WpdPack\Include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;WPCAP;HAVE_REMOTE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -63,9 +64,11 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="iphlpapi.lib packet.lib wpcap.lib ws2_32.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="C:\Libraries\Network\Winpcap\4.0\WpdPack\Lib"
+				AdditionalLibraryDirectories="D:\Tools\Libraries\Network\Winpcap\WpdPack\Lib"
 				GenerateDebugInformation="true"
 				SubSystem="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -85,9 +88,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -118,7 +118,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="C:\Libraries\Network\Winpcap\4.0\WpdPack\Include"
+				AdditionalIncludeDirectories="D:\Tools\Libraries\Network\Winpcap\WpdPack\Include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;WPCAP;HAVE_REMOTE"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
@@ -139,11 +139,13 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="iphlpapi.lib packet.lib wpcap.lib ws2_32.lib"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="C:\Libraries\Network\Winpcap\4.0\WpdPack\Lib"
+				AdditionalLibraryDirectories="D:\Tools\Libraries\Network\Winpcap\WpdPack\Lib"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -163,9 +165,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"

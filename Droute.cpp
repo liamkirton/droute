@@ -1,7 +1,7 @@
 // ========================================================================================================================
 // Droute
 //
-// Copyright ©2007 Liam Kirton <liam@int3.ws>
+// Copyright ©2007-2008 Liam Kirton <liam@int3.ws>
 // ========================================================================================================================
 // Droute.cpp
 //
@@ -12,7 +12,6 @@
 #include <windows.h>
 
 #include <iphlpapi.h>
-#include <pcap.h>
 
 #include <algorithm>
 #include <iomanip>
@@ -22,11 +21,13 @@
 #include <string>
 #include <vector>
 
+#include <pcap.h>
+
 #include "Droute.h"
 
 // ========================================================================================================================
 
-const char *g_cDrouteVersion = "0.1.1";
+const char *g_cDrouteVersion = "0.2.1";
 
 // ========================================================================================================================
 
@@ -38,7 +39,7 @@ DWORD WINAPI PcapListenThreadProc(LPVOID lpParameter);
 void OnListenArp(pcap_t *pAdapter, pcap_pkthdr *pPktHeader, u_char *pPktData);
 void OnListenIp(pcap_t *pAdapter, pcap_pkthdr *pPktHeader, u_char *pPktData, bool bReuseData);
 
-void GenerateInterfaceDefinitions(pcap_if_t *pDeviceList, std::vector<std::string> &interfaceStrings);
+void GenerateInterfaceDefinitions(pcap_if_t *pDeviceList, std::vector<std::string> &interfaceStrings, std::vector<std::string> &fwdStrings);
 void PrintUsage();
 
 // ========================================================================================================================
@@ -57,7 +58,7 @@ int main(int argc, char *argv[])
 {
 	std::cout << std::endl
 			  << "Droute " << g_cDrouteVersion << std::endl
-			  << "Copyright " << "\xB8" << "2007 Liam Kirton <liam@int3.ws>" << std::endl
+			  << "Copyright " << "\xB8" << "2007-2008 Liam Kirton <liam@int3.ws>" << std::endl
 			  << std::endl
 			  << "Built at " << __TIME__ << " on " << __DATE__ << std::endl << std::endl;
 
@@ -65,6 +66,7 @@ int main(int argc, char *argv[])
 	pcap_if_t *pDeviceList = NULL;
 
 	std::vector<std::string> interfaceStrings;
+	std::vector<std::string> forwardStrings;
 
 	try
 	{
@@ -73,7 +75,20 @@ int main(int argc, char *argv[])
 			std::string cmd = argv[i];
 			std::transform(cmd.begin(), cmd.end(), cmd.begin(), ::tolower);
 
-			if(cmd == "/nat")
+			if(cmd.substr(0, 5) == "/fwd:")
+			{
+				std::string parseForwardString = cmd.substr(5);
+				
+				u_int fwdBlockMarker = 0;
+				while(!parseForwardString.empty() && (fwdBlockMarker != std::string::npos))
+				{
+					u_int nextFwdBlockMarker = parseForwardString.find(',', fwdBlockMarker + 1);
+					std::string fwdBlock = parseForwardString.substr(fwdBlockMarker + ((fwdBlockMarker == 0) ? 0 : 1), nextFwdBlockMarker - fwdBlockMarker - ((fwdBlockMarker == 0) ? 0 : 1));
+					fwdBlockMarker = nextFwdBlockMarker;
+					forwardStrings.push_back(fwdBlock);
+				}
+			}
+			else if(cmd == "/nat")
 			{
 				g_RouteType |= RouteTypeNat;
 			}
@@ -114,7 +129,7 @@ int main(int argc, char *argv[])
 			throw std::exception("pcap_findalldevs_ex() Failed.");
 		}
 		
-		GenerateInterfaceDefinitions(pDeviceList, interfaceStrings);
+		GenerateInterfaceDefinitions(pDeviceList, interfaceStrings, forwardStrings);
 
 		if((g_hMaintenanceThread = CreateThread(NULL, 0, MaintenanceThreadProc, NULL, 0, NULL)) == NULL)
 		{
@@ -892,7 +907,7 @@ void OnListenIp(pcap_t *pAdapter, pcap_pkthdr *pPktHeader, u_char *pPktData, boo
 
 // ========================================================================================================================
 
-void GenerateInterfaceDefinitions(pcap_if_t *pDeviceList, std::vector<std::string> &ifStrings)
+void GenerateInterfaceDefinitions(pcap_if_t *pDeviceList, std::vector<std::string> &ifStrings, std::vector<std::string> &fwdStrings)
 {
 	for(std::vector<std::string>::iterator i = ifStrings.begin(); i != ifStrings.end(); ++i)
 	{
@@ -1102,7 +1117,8 @@ void GenerateInterfaceDefinitions(pcap_if_t *pDeviceList, std::vector<std::strin
 
 void PrintUsage()
 {
-	std::cout << "Usage: Droute.exe /Nat <Device>;<Mac>;<Ip>;<Netmask>;<Gateway> <Device>;<Mac>;<Ip>;<Netmask>;<Gateway>" << std::endl
+	std::cout << "Usage: Droute.exe /Nat /Fwd:???" << std::endl
+			  << "       <Device>;<Mac>;<Ip>;<Netmask>;<Gateway> <Device>;<Mac>;<Ip>;<Netmask>;<Gateway>" << std::endl
 			  << std::endl
 			  << "Available Devices:" << std::endl << std::endl;
 
